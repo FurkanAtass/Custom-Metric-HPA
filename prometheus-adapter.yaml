@@ -1,0 +1,14 @@
+prometheus:
+  url: http://prometheus-operated.default.svc.cluster.local
+  port: 9090
+rules:
+  default: false
+  external:
+    - seriesQuery: '{job="python-app"}'
+      resources:
+        template: <<.Resource>>
+        namespaced: false
+      name:
+        matches: "^(.*)"
+        as: "python_request_duration_seconds_per_request"
+      metricsQuery: 'sum(rate(python_request_duration_seconds_sum{job="python-app", <<.LabelMatchers>>}[2m])) by (<<.GroupBy>>) / sum(rate(python_request_duration_seconds_count{job="python-app", <<.LabelMatchers>>}[2m])) by (<<.GroupBy>>)'

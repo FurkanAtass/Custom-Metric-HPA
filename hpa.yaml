@@ -1,0 +1,33 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: python-app-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: python-app-deployment
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: External
+    external:
+      metric:
+        name: python_request_duration_seconds_per_request
+      target:
+        type: Value
+        value: 12
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 240
+      policies:
+      - type: Pods
+        value: 10
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 10
+        periodSeconds: 120
